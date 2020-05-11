@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,8 @@ import com.sbhol.service.UserService;
  */
 @Service
 public class UserServiceImpl implements UserService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Autowired
 	private UserRepository userRepository;
@@ -32,6 +36,7 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	@Override
 	public void addUser(User user) {
+		logger.info("In UserServiceImpl.addUser add the products to the cart of user");
 		Integer cartId = 0;
 		if(null != cartRepository.max()) {
 			cartId = cartRepository.max();
