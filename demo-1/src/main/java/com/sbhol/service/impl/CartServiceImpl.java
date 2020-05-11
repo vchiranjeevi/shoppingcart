@@ -5,6 +5,8 @@ package com.sbhol.service.impl;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,8 @@ import com.sbhol.service.CartService;
 @Service
 public class CartServiceImpl implements CartService {
 	
+	private static final Logger logger = LoggerFactory.getLogger(CartServiceImpl.class);
+	
 	@Autowired
 	private CartRepository cartRepository;
 	
@@ -30,6 +34,7 @@ public class CartServiceImpl implements CartService {
 	
 	@Override
 	public void removeFromCart(Cart cart) {
+		logger.info("In CartServiceImpl.removeFromCart remove the product from cart");
 		List<User> users = userRepository.findByUserName(cart.getUser().getUserName());
 		List<Cart> carts = cartRepository.findCart(cart.getProductId(), users.get(0).getUserName());
 		if(null != carts && !carts.isEmpty()) {
@@ -47,6 +52,7 @@ public class CartServiceImpl implements CartService {
 	
 	@Override
 	public void removeAllProductsFromCart(Cart cart) {
+		logger.info("In CartServiceImpl.removeAllProductsFromCart remove all products from cart");
 		List<User> users = userRepository.findByUserName(cart.getUser().getUserName());
 		cartRepository.removeAllProductsFromCart(0, users.get(0).getCartId());
 		/*
@@ -58,10 +64,12 @@ public class CartServiceImpl implements CartService {
 
 	@Override
 	public void updateQuantity(Cart cart) throws ShoppingCartException {
+		logger.info("In CartServiceImpl.updateQuantity  update the product quantity");
 		List<User> users = userRepository.findByUserName(cart.getUser().getUserName());
 		if(cart.getQuantity() >= 0) {
 			cartRepository.updateQuantity(cart.getQuantity(), cart.getProductId(), users.get(0).getCartId());
 		} else {
+			logger.info("In CartServiceImpl.removeFromCart  if product quantity negative value throw the exception");
 			throw new ShoppingCartException("Product Quantity Should be Positive");
 		}
 	}
