@@ -1,0 +1,73 @@
+/**
+ * 
+ */
+package com.mindtree.shoppingcart.service.impl;
+
+import java.util.List;
+
+import javax.transaction.Transactional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.mindtree.shoppingcart.entity.Cart;
+import com.mindtree.shoppingcart.entity.User;
+import com.mindtree.shoppingcart.repository.CartRepository;
+import com.mindtree.shoppingcart.repository.UserRepository;
+import com.mindtree.shoppingcart.service.UserService;
+
+/**
+ * @author M1044610
+ *
+ */
+@Service
+public class UserServiceImpl implements UserService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private CartRepository cartRepository;
+	
+	@Transactional
+	@Override
+	public void addUser(User user) {
+		logger.info("In UserServiceImpl.addUser add the products to the cart of user");
+		Integer cartId = 0;
+		if(null != cartRepository.max()) {
+			cartId = cartRepository.max();
+		}
+		List<Cart> carts = cartRepository.findCart(user.getCart().getProductId(), user.getUserName());
+		List<User> users = userRepository.findByUserName(user.getUserName());
+		if(null != users && !users.isEmpty() && null != carts && !carts.isEmpty()) {
+			int qty = carts.get(0).getQuantity() + 1;
+			cartRepository.updateCart(qty, user.getCart().getProductId(), carts.get(0).getCartId());
+			/*
+			 * Optional<Product> product =
+			 * productRepository.findById(user.getCart().getProductId());
+			 * if(product.isPresent()) { productRepository.updateProductPrice(qty *
+			 * product.get().getProductPrice(), product.get().getProductId()); }
+			 */
+			
+			
+		} else if(null != users && !users.isEmpty() && carts.isEmpty()) {
+			user.getCart().setCartId(users.get(0).getCartId());
+			user.setCartId(users.get(0).getCartId());
+			cartRepository.save(user.getCart());
+		} else {
+			
+			user.setCartId(cartId + 1);
+			user.getCart().setCartId(user.getCartId());
+			userRepository.save(user);
+		}
+		
+		
+			
+		//}
+	}
+
+}
